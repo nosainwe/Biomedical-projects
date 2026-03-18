@@ -1,5 +1,6 @@
 # Biomedical-projects
-Machine learning pipelines for biomedical Imaging/spectroscopy - NIR, Raman, terahertz, and beyond. Tissue characterisation, disease detection, physiological signal classification, and spectral analysis across the electromagnetic spectrum
+Machine learning pipelines for biomedical imaging/spectroscopy - NIR, Raman, terahertz, and beyond. Tissue characterisation, disease detection, physiological signal classification, and spectral analysis across the electromagnetic spectrum.
+
 Each project is self-contained with its own setup and run instructions.
 
 ---
@@ -9,6 +10,7 @@ Each project is self-contained with its own setup and run instructions.
 | Project | Description | Technologies |
 |---------|-------------|--------------|
 | [🔬 NIR Cartilage Classifier](./nir-cartilage-classifier/) | Proof-of-concept ML pipeline classifying **Near-Infrared spectra** into Healthy vs. Osteoarthritic cartilage. Full preprocessing chain (SG + MSC + 2nd derivative) benchmarked across Random Forest, SVM, and PLS-DA with wavelength importance analysis. Built in the context of Prof. Afara's BSL research at UEF. | scikit-learn, scipy, NumPy, Matplotlib |
+| [🦴 Knee OA Severity Classifier](./knee-oa-classifier/) | DenseNet201 fine-tuned to grade knee osteoarthritis severity from X-ray images using the **Kellgren-Lawrence (KL) scale** (grades 0–4). Includes custom Random Erasing augmentation, heavy spatial augmentation, and early stopping on validation accuracy. | TensorFlow, Keras, OpenCV, scikit-learn |
 
 ---
 
@@ -32,6 +34,7 @@ This repo focuses on the intersection of **spectroscopy, biomedical signal analy
 - Near-Infrared (NIR) spectroscopy and tissue characterisation
 - Spectral preprocessing: Savitzky-Golay filtering, Multiplicative Scatter Correction (MSC), derivative transforms
 - Chemometrics methods: PLS-DA, feature importance, ROC/AUC evaluation
+- Deep learning for medical image classification: transfer learning, augmentation strategies, KL grading
 - Biomedical applications: cartilage health, osteoarthritis detection, tissue composition
 
 ---

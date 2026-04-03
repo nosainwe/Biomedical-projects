@@ -3,8 +3,6 @@
 POC: Deep Learning Analysis of Synthetic T2 and T1rho Knee Cartilage Maps
 =============================================================================
 Author : Nosa Peter Inwe
-Context: Proof-of-concept for interview with Prof. Ruud van Heeswijk
-         CHUV-UNIL Translational Magnetic Resonance Research Lab, Lausanne
 
 Clinical Problem
 ----------------

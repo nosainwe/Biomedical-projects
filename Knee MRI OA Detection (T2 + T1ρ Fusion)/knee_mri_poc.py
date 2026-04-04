@@ -46,9 +46,10 @@ from sklearn.metrics import (accuracy_score, roc_auc_score, roc_curve,
 import warnings
 warnings.filterwarnings("ignore")
 
+# seeding for reproducibility — same synthetic dataset every run
 RNG = np.random.default_rng(42)
 
-# ── Colour palette (matching van Heeswijk lab aesthetic: clinical, clean) ─
+# keeping colors centralized — easier to retheme without hunting through plot code
 PAL = {
     "navy":    "#0D1B2A",
     "primary": "#1565C0",
@@ -62,19 +63,18 @@ PAL = {
     "white":   "#FFFFFF",
 }
 
-# Normal reference ranges from literature (ms at 3T)
-# T2 normal cartilage: 30-50 ms; OA elevated: 50-80 ms
-# T1rho normal: 35-50 ms; OA elevated: 55-90 ms
-T2_NORMAL_MEAN   = 40.0
-T2_NORMAL_STD    =  5.0
-T2_OA_MEAN       = 62.0
-T2_OA_STD        =  9.0
+# reference ranges from 3T MRI literature — used both for simulation and abnormality scoring
+# T2 normal: 30-50 ms | T1rho normal: 35-50 ms — OA pushes both up significantly
+T2_NORMAL_MEAN    = 40.0
+T2_NORMAL_STD     =  5.0
+T2_OA_MEAN        = 62.0
+T2_OA_STD         =  9.0
 T1RHO_NORMAL_MEAN = 43.0
 T1RHO_NORMAL_STD  =  5.0
 T1RHO_OA_MEAN     = 68.0
 T1RHO_OA_STD      = 10.0
 
-# ── Cartilage compartments (six anatomical regions of the knee) ──────────
+# six standard anatomical compartments used in clinical knee OA assessment
 COMPARTMENTS = [
     "Medial Femoral",
     "Lateral Femoral",
@@ -97,35 +97,34 @@ def make_cartilage_mask(shape=(128, 128)):
     H, W = shape
     masks = {}
 
-    # Medial femoral condyle (upper-left arc)
+    # using ogrid for vectorized distance calculations — avoids looping over pixels
     y, x = np.ogrid[:H, :W]
+
+    # medial and lateral condyles are arcs — annular region (outer^2 - inner^2) clipped to quadrant
     masks["Medial Femoral"]  = (
         ((x - 32)**2 + (y - 30)**2 < 22**2) &
         ((x - 32)**2 + (y - 30)**2 > 12**2) &
         (x < 60) & (y < 65)
     )
-    # Lateral femoral condyle (upper-right arc)
     masks["Lateral Femoral"] = (
         ((x - 96)**2 + (y - 30)**2 < 22**2) &
         ((x - 96)**2 + (y - 30)**2 > 12**2) &
         (x > 68) & (y < 65)
     )
-    # Medial tibial plateau (lower-left slab)
+    # tibial plateaus are rectangular slabs — simpler geometry
     masks["Medial Tibial"]   = (
         (x >= 10) & (x <= 58) &
         (y >= 72) & (y <= 88)
     )
-    # Lateral tibial plateau (lower-right slab)
     masks["Lateral Tibial"]  = (
         (x >= 70) & (x <= 118) &
         (y >= 72) & (y <= 88)
     )
-    # Patellar cartilage (small central-upper block)
     masks["Patellar"]        = (
         (x >= 48) & (x <= 80) &
         (y >= 8)  & (y <= 24)
     )
-    # Trochlear groove (central strip)
+    # trochlear groove sits between the condyles — central strip
     masks["Trochlear"]       = (
         (x >= 44) & (x <= 84) &
         (y >= 35) & (y <= 55)
@@ -144,16 +143,18 @@ def generate_map(masks, compartment_params, noise_sigma=1.5, shape=(128, 128)):
         vals = RNG.normal(mu, sigma, size=shape)
         img[mask] = vals[mask]
 
-    # Spatially correlated noise over the whole image
+    # spatially correlated noise mimics scanner field inhomogeneity
     img += gaussian_filter(RNG.normal(0, noise_sigma, shape), sigma=1.5)
-    # Smooth within cartilage boundaries
+
+    # smooth only within cartilage — preserves sharp compartment boundaries
     all_cart = np.zeros(shape, bool)
     for m in masks.values():
         all_cart |= m
-    smooth = gaussian_filter(img, sigma=0.8)
-    img[all_cart] = smooth[all_cart]
-    img[~all_cart] = 0.0
-    return np.clip(img, 0, None)
+    smooth          = gaussian_filter(img, sigma=0.8)
+    img[all_cart]   = smooth[all_cart]
+    img[~all_cart]  = 0.0   # zero outside cartilage — background is not tissue
+
+    return np.clip(img, 0, None)   # relaxation times are always positive
 
 
 def build_subject(oa_compartments=None, shape=(128, 128)):
@@ -171,15 +172,13 @@ def build_subject(oa_compartments=None, shape=(128, 128)):
     t1rho_params = {}
     for name in COMPARTMENTS:
         if oa_compartments and name in oa_compartments:
-            t2_params[name]    = (T2_OA_MEAN    + RNG.uniform(-5, 5),
-                                  T2_OA_STD)
-            t1rho_params[name] = (T1RHO_OA_MEAN + RNG.uniform(-6, 6),
-                                  T1RHO_OA_STD)
+            # OA compartments: elevated mean with small random jitter per subject
+            t2_params[name]    = (T2_OA_MEAN    + RNG.uniform(-5, 5), T2_OA_STD)
+            t1rho_params[name] = (T1RHO_OA_MEAN + RNG.uniform(-6, 6), T1RHO_OA_STD)
         else:
-            t2_params[name]    = (T2_NORMAL_MEAN + RNG.uniform(-3, 3),
-                                  T2_NORMAL_STD)
-            t1rho_params[name] = (T1RHO_NORMAL_MEAN + RNG.uniform(-3, 3),
-                                  T1RHO_NORMAL_STD)
+            # healthy compartments: normal range with smaller jitter
+            t2_params[name]    = (T2_NORMAL_MEAN    + RNG.uniform(-3, 3), T2_NORMAL_STD)
+            t1rho_params[name] = (T1RHO_NORMAL_MEAN + RNG.uniform(-3, 3), T1RHO_NORMAL_STD)
 
     t2    = generate_map(masks, t2_params,    shape=shape)
     t1rho = generate_map(masks, t1rho_params, shape=shape)
@@ -193,17 +192,15 @@ def generate_dataset(n_healthy=60, n_oa=60):
     """
     subjects, labels = [], []
 
-    # Healthy
     for _ in range(n_healthy):
         t2, t1rho, masks, lbl = build_subject(oa_compartments=None)
         subjects.append((t2, t1rho, masks))
         labels.append(lbl)
 
-    # OA: random subset of compartments affected
     for _ in range(n_oa):
+        # OA typically starts in 1-3 compartments — rarely affects all six at once
         n_affected = RNG.integers(1, 4)
-        affected   = list(RNG.choice(COMPARTMENTS, size=n_affected,
-                                      replace=False))
+        affected   = list(RNG.choice(COMPARTMENTS, size=n_affected, replace=False))
         t2, t1rho, masks, lbl = build_subject(oa_compartments=affected)
         subjects.append((t2, t1rho, masks))
         labels.append(lbl)
@@ -224,32 +221,38 @@ def extract_features(t2, t1rho, masks):
       T1rho: mean, std, 75th percentile, fraction of pixels > threshold
     Plus global features: T2/T1rho ratio mean, cross-map correlation
     """
-    T2_THRESH    = 55.0   # ms: above this is considered elevated
-    T1RHO_THRESH = 58.0   # ms: above this is considered elevated
+    # thresholds from literature — above these values is clinically considered elevated
+    T2_THRESH    = 55.0
+    T1RHO_THRESH = 58.0
 
     feat = []
     for name in COMPARTMENTS:
         m = masks[name]
         if m.sum() == 0:
+            # empty mask shouldn't happen with fixed geometry but guard anyway
             feat.extend([0.0] * 8)
             continue
+
         t2v    = t2[m]
         t1rhov = t1rho[m]
 
+        # 75th percentile captures elevated tail better than mean alone for skewed OA distributions
         feat.append(float(np.mean(t2v)))
         feat.append(float(np.std(t2v)))
         feat.append(float(np.percentile(t2v, 75)))
-        feat.append(float(np.mean(t2v > T2_THRESH)))
+        feat.append(float(np.mean(t2v > T2_THRESH)))       # fraction above threshold
         feat.append(float(np.mean(t1rhov)))
         feat.append(float(np.std(t1rhov)))
         feat.append(float(np.percentile(t1rhov, 75)))
-        feat.append(float(np.mean(t1rhov > T1RHO_THRESH)))
+        feat.append(float(np.mean(t1rhov > T1RHO_THRESH))) # fraction above threshold
 
-    # Global: ratio and correlation
+    # global features capture cross-modal relationships that per-compartment features miss
     all_cart = np.zeros_like(t2, dtype=bool)
     for m in masks.values():
         all_cart |= m
+
     if all_cart.sum() > 0:
+        # 1e-6 epsilon prevents division by zero in degenerate simulated maps
         ratio = t1rho[all_cart] / (t2[all_cart] + 1e-6)
         feat.append(float(np.mean(ratio)))
         feat.append(float(np.std(ratio)))
@@ -266,6 +269,8 @@ def extract_features(t2, t1rho, masks):
 # =============================================================================
 
 def build_models():
+    # three classifiers — RF and GB are tree-based, SVM handles non-linear boundaries differently
+    # all wrapped in Pipeline so scaling happens inside CV folds, not before
     models = {
         "Random Forest": Pipeline([
             ("scaler", StandardScaler()),
@@ -291,27 +296,34 @@ def build_models():
 
 
 def evaluate_models(X, y):
+    # stratified so each fold preserves the 50/50 healthy/OA class ratio
     cv      = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     models  = build_models()
     results = {}
+
     print("\n" + "="*60)
     print("  MODEL EVALUATION (5-fold stratified cross-validation)")
     print("="*60)
+
     for name, model in models.items():
+        # running predict and predict_proba separately — cross_val_predict doesn't do both at once
         y_pred = cross_val_predict(model, X, y, cv=cv, method="predict")
-        y_prob = cross_val_predict(model, X, y, cv=cv,
-                                   method="predict_proba")[:, 1]
+        y_prob = cross_val_predict(model, X, y, cv=cv, method="predict_proba")[:, 1]
         acc    = accuracy_score(y, y_pred)
         auc    = roc_auc_score(y, y_prob)
         cm_    = confusion_matrix(y, y_pred)
         fpr, tpr, _ = roc_curve(y, y_prob)
-        results[name] = {"acc": acc, "auc": auc, "cm": cm_,
-                         "fpr": fpr, "tpr": tpr,
-                         "y_pred": y_pred, "y_prob": y_prob}
+
+        results[name] = {
+            "acc": acc, "auc": auc, "cm": cm_,
+            "fpr": fpr, "tpr": tpr,
+            "y_pred": y_pred, "y_prob": y_prob
+        }
         print(f"\n  {name}")
         print(f"  Accuracy: {acc:.3f}  |  AUC-ROC: {auc:.3f}")
         print(classification_report(y, y_pred,
               target_names=["Healthy", "OA"], digits=3))
+
     return results
 
 
@@ -328,10 +340,14 @@ def make_abnormality_heatmap(t2, t1rho, masks, shape=(128, 128)):
     for name, m in masks.items():
         if m.sum() == 0:
             continue
-        t2_dev    = np.clip((t2 - T2_NORMAL_MEAN)    / T2_NORMAL_STD,    0, None)
+        # z-score deviation above the normal mean — clipped at 0 so healthy tissue doesn't go negative
+        t2_dev    = np.clip((t2    - T2_NORMAL_MEAN)    / T2_NORMAL_STD,    0, None)
         t1rho_dev = np.clip((t1rho - T1RHO_NORMAL_MEAN) / T1RHO_NORMAL_STD, 0, None)
-        # T1rho weighted slightly higher (more sensitive to early OA)
+
+        # T1rho gets 60% weight — it's more sensitive to early proteoglycan loss than T2
         heatmap[m] = (0.4 * t2_dev[m] + 0.6 * t1rho_dev[m])
+
+    # light smoothing for display — doesn't change the underlying scores
     return gaussian_filter(heatmap, sigma=1.0)
 
 
@@ -343,18 +359,23 @@ def compute_compartment_means(subjects, labels, category):
     """Mean T2 and T1rho per compartment for healthy or OA group."""
     t2_means    = {c: [] for c in COMPARTMENTS}
     t1rho_means = {c: [] for c in COMPARTMENTS}
+
     for i, (t2, t1rho, masks) in enumerate(subjects):
-        if labels[i] == category:
-            for name, m in masks.items():
-                if m.sum() > 0:
-                    t2_means[name].append(float(np.mean(t2[m])))
-                    t1rho_means[name].append(float(np.mean(t1rho[m])))
+        if labels[i] != category:
+            continue
+        for name, m in masks.items():
+            if m.sum() > 0:
+                t2_means[name].append(float(np.mean(t2[m])))
+                t1rho_means[name].append(float(np.mean(t1rho[m])))
+
+    # standard error for error bars — std/sqrt(n)
     t2_avg    = {c: np.mean(v) if v else 0 for c, v in t2_means.items()}
     t1rho_avg = {c: np.mean(v) if v else 0 for c, v in t1rho_means.items()}
     t2_se     = {c: np.std(v)/np.sqrt(len(v)) if len(v) > 1 else 0
                  for c, v in t2_means.items()}
     t1rho_se  = {c: np.std(v)/np.sqrt(len(v)) if len(v) > 1 else 0
                  for c, v in t1rho_means.items()}
+
     return t2_avg, t1rho_avg, t2_se, t1rho_se
 
 
@@ -370,32 +391,35 @@ def make_figure(subjects, labels, X, results):
         fontsize=14, fontweight="bold", color=PAL["navy"], y=0.99
     )
 
+    # 3x4 grid — panels A-D: maps, E-G: heatmap/compartment bars/ROC, H-J: importance/CM/comparison
     gs = gridspec.GridSpec(3, 4, figure=fig,
                            hspace=0.48, wspace=0.38,
                            top=0.94, bottom=0.06,
                            left=0.06, right=0.97)
 
-    # ── pick representative healthy and OA subject ────────────────────────
+    # picking specific subjects for visual consistency — not the first ones, more visually clear
     h_idx = int(np.where(labels == 0)[0][3])
     o_idx = int(np.where(labels == 1)[0][2])
-    t2_h,    t1rho_h,    masks_h, _ = subjects[h_idx][0], subjects[h_idx][1], subjects[h_idx][2], 0
-    t2_oa,   t1rho_oa,   masks_oa    = subjects[o_idx][0], subjects[o_idx][1], subjects[o_idx][2]
+    t2_h,  t1rho_h,  masks_h  = subjects[h_idx][0],  subjects[h_idx][1],  subjects[h_idx][2]
+    t2_oa, t1rho_oa, masks_oa = subjects[o_idx][0],  subjects[o_idx][1],  subjects[o_idx][2]
 
+    # fixed colorbar range so healthy and OA maps are directly comparable
     t2_min, t2_max       = 20, 90
     t1rho_min, t1rho_max = 25, 100
     cmap_t2    = plt.cm.get_cmap("plasma")
     cmap_t1rho = plt.cm.get_cmap("viridis")
 
     def mask_img(img, masks_dict):
-        out = np.ma.masked_where(
+        # masking background to transparent — only show cartilage regions in the maps
+        return np.ma.masked_where(
             ~np.logical_or.reduce([m for m in masks_dict.values()]), img)
-        return out
 
     def add_title(ax, text, fontsize=10):
         ax.set_title(text, fontweight="bold", fontsize=fontsize,
                      color=PAL["primary"], pad=5)
 
     def clean_ax(ax):
+        # removing ticks for map panels — pixel coordinates aren't meaningful here
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_facecolor(PAL["navy"])
@@ -416,7 +440,7 @@ def make_figure(subjects, labels, X, results):
     clean_ax(ax_B)
     plt.colorbar(im_B, ax=ax_B, fraction=0.046, pad=0.04).set_label("ms", fontsize=8)
 
-    # Panel C: OA T2
+    # Panel C: OA T2 — same colormap and range as A for direct comparison
     ax_C = fig.add_subplot(gs[0, 2])
     im_C = ax_C.imshow(mask_img(t2_oa, masks_oa),
                        cmap=cmap_t2, vmin=t2_min, vmax=t2_max)
@@ -432,7 +456,7 @@ def make_figure(subjects, labels, X, results):
     clean_ax(ax_D)
     plt.colorbar(im_D, ax=ax_D, fraction=0.046, pad=0.04).set_label("ms", fontsize=8)
 
-    # Panel E: Abnormality heatmap (OA subject)
+    # Panel E: Fused abnormality heatmap — shows spatial distribution of pathology
     ax_E = fig.add_subplot(gs[1, 0])
     heat = make_abnormality_heatmap(t2_oa, t1rho_oa, masks_oa)
     cmap_heat = LinearSegmentedColormap.from_list(
@@ -442,32 +466,31 @@ def make_figure(subjects, labels, X, results):
     clean_ax(ax_E)
     plt.colorbar(im_E, ax=ax_E, fraction=0.046, pad=0.04).set_label("z-score", fontsize=8)
 
-    # Panel F: Compartment means
+    # Panel F: Compartment mean bars — visually confirms the T2/T1rho elevation pattern
     ax_F = fig.add_subplot(gs[1, 1:3])
-    h_t2, _, _, _ = compute_compartment_means(
+    h_t2, h_t1rho, _, _ = compute_compartment_means(
         [(s[0], s[1], s[2]) for s in subjects], labels, 0)
-    o_t2, o_t1rho, o_t2_se, o_t1rho_se = compute_compartment_means(
+    o_t2, o_t1rho, _, _  = compute_compartment_means(
         [(s[0], s[1], s[2]) for s in subjects], labels, 1)
-    h_t1rho_d = compute_compartment_means(
-        [(s[0], s[1], s[2]) for s in subjects], labels, 0)
-    h_t1rho = h_t1rho_d[1]
 
     short = ["Med.F", "Lat.F", "Med.T", "Lat.T", "Patell.", "Troch."]
     x = np.arange(len(COMPARTMENTS))
     w = 0.18
-    ax_F.bar(x - 1.5*w, [h_t2[c] for c in COMPARTMENTS], w,
-             label="Healthy T2", color=PAL["primary"], alpha=0.85)
-    ax_F.bar(x - 0.5*w, [o_t2[c] for c in COMPARTMENTS], w,
-             label="OA T2", color="#C62828", alpha=0.85)
+    ax_F.bar(x - 1.5*w, [h_t2[c]    for c in COMPARTMENTS], w,
+             label="Healthy T2",    color=PAL["primary"], alpha=0.85)
+    ax_F.bar(x - 0.5*w, [o_t2[c]    for c in COMPARTMENTS], w,
+             label="OA T2",         color="#C62828",       alpha=0.85)
     ax_F.bar(x + 0.5*w, [h_t1rho[c] for c in COMPARTMENTS], w,
-             label="Healthy T1rho", color=PAL["teal"], alpha=0.85)
+             label="Healthy T1rho", color=PAL["teal"],     alpha=0.85)
     ax_F.bar(x + 1.5*w, [o_t1rho[c] for c in COMPARTMENTS], w,
-             label="OA T1rho", color=PAL["accent"], alpha=0.85,
+             label="OA T1rho",      color=PAL["accent"],   alpha=0.85,
              edgecolor="#6D2200")
-    ax_F.axhline(T2_NORMAL_MEAN, color=PAL["primary"], lw=1.2,
-                 ls="--", alpha=0.5, label=f"T2 normal mean ({T2_NORMAL_MEAN} ms)")
-    ax_F.axhline(T1RHO_NORMAL_MEAN, color=PAL["teal"], lw=1.2,
-                 ls=":", alpha=0.5, label=f"T1rho normal mean ({T1RHO_NORMAL_MEAN} ms)")
+
+    # reference lines — make it immediately obvious which bars exceed normal
+    ax_F.axhline(T2_NORMAL_MEAN,    color=PAL["primary"], lw=1.2, ls="--", alpha=0.5,
+                 label=f"T2 normal mean ({T2_NORMAL_MEAN} ms)")
+    ax_F.axhline(T1RHO_NORMAL_MEAN, color=PAL["teal"],    lw=1.2, ls=":", alpha=0.5,
+                 label=f"T1rho normal mean ({T1RHO_NORMAL_MEAN} ms)")
     ax_F.set_xticks(x)
     ax_F.set_xticklabels(short, fontsize=9)
     ax_F.set_ylabel("Relaxation Time (ms)", fontsize=9)
@@ -476,57 +499,57 @@ def make_figure(subjects, labels, X, results):
     ax_F.set_facecolor(PAL["white"])
     add_title(ax_F, "F  Mean T2 and T1rho per Compartment: Healthy vs OA")
 
-    # Panel G: ROC curves
+    # Panel G: ROC curves — all three models on the same axes for direct comparison
     ax_G = fig.add_subplot(gs[1, 3])
     colors_roc = [PAL["primary"], PAL["teal"], PAL["accent"]]
     for (mname, res), col in zip(results.items(), colors_roc):
         ax_G.plot(res["fpr"], res["tpr"],
                   label=f"{mname}\nAUC={res['auc']:.2f}",
                   color=col, lw=2.0)
-    ax_G.plot([0, 1], [0, 1], "k--", lw=1, alpha=0.5)
+    ax_G.plot([0, 1], [0, 1], "k--", lw=1, alpha=0.5)   # random classifier baseline
     ax_G.set_xlabel("False Positive Rate", fontsize=9)
     ax_G.set_ylabel("True Positive Rate", fontsize=9)
     ax_G.legend(fontsize=7.5, loc="lower right")
     ax_G.set_facecolor(PAL["white"])
     add_title(ax_G, "G  ROC Curves (5-fold CV)")
 
-    # Panel H: Feature importance (Random Forest)
+    # Panel H: Feature importance — fitting on full dataset just for the ranking, not for generalization
     ax_H = fig.add_subplot(gs[2, :2])
     rf_model = build_models()["Random Forest"]
     rf_model.fit(X, y)
     imp = rf_model.named_steps["clf"].feature_importances_
 
-    # Feature names: 6 compartments x 8 features + 3 global
+    # building feature names to match the extraction order in extract_features()
     feat_names = []
     short_comp = ["MedF", "LatF", "MedT", "LatT", "Pat", "Troch"]
     for sc in short_comp:
-        feat_names += [f"{sc} T2.mean", f"{sc} T2.std",
-                       f"{sc} T2.p75",  f"{sc} T2.frac>th",
+        feat_names += [f"{sc} T2.mean",  f"{sc} T2.std",
+                       f"{sc} T2.p75",   f"{sc} T2.frac>th",
                        f"{sc} T1r.mean", f"{sc} T1r.std",
-                       f"{sc} T1r.p75", f"{sc} T1r.frac>th"]
+                       f"{sc} T1r.p75",  f"{sc} T1r.frac>th"]
     feat_names += ["Global T1r/T2 ratio.mean",
                    "Global T1r/T2 ratio.std",
                    "Global T2-T1r correlation"]
 
+    # top 20 is enough to see the pattern — full 51 features would be unreadable
     sorted_idx = np.argsort(imp)[::-1][:20]
     top_names  = [feat_names[i] for i in sorted_idx]
     top_imp    = imp[sorted_idx]
-    colors_bar = [PAL["teal"] if "T1r" in n else PAL["primary"]
-                  for n in top_names]
+    # color by modality — makes it easy to see T1rho vs T2 dominance at a glance
+    colors_bar = [PAL["teal"] if "T1r" in n else PAL["primary"] for n in top_names]
 
-    ax_H.barh(range(len(top_names))[::-1], top_imp,
-              color=colors_bar, alpha=0.85)
+    ax_H.barh(range(len(top_names))[::-1], top_imp, color=colors_bar, alpha=0.85)
     ax_H.set_yticks(range(len(top_names)))
     ax_H.set_yticklabels(top_names[::-1], fontsize=7.5)
     ax_H.set_xlabel("Feature Importance (Gini)", fontsize=9)
     ax_H.set_facecolor(PAL["white"])
     ax_H.axvline(0, color="black", lw=0.5)
-    blue_patch  = mpatches.Patch(color=PAL["primary"], label="T2 feature")
-    teal_patch  = mpatches.Patch(color=PAL["teal"],    label="T1rho feature")
+    blue_patch = mpatches.Patch(color=PAL["primary"], label="T2 feature")
+    teal_patch = mpatches.Patch(color=PAL["teal"],    label="T1rho feature")
     ax_H.legend(handles=[blue_patch, teal_patch], fontsize=8, loc="lower right")
     add_title(ax_H, "H  Top-20 Feature Importances (Random Forest)")
 
-    # Panel I: Confusion matrix + model comparison
+    # Panel I: Confusion matrix — RF only, best performer typically
     ax_I = fig.add_subplot(gs[2, 2])
     rf_cm = results["Random Forest"]["cm"]
     sns.heatmap(rf_cm, annot=True, fmt="d", cmap="Blues",
@@ -538,22 +561,21 @@ def make_figure(subjects, labels, X, results):
     ax_I.set_ylabel("True", fontsize=9)
     add_title(ax_I, "I  Confusion Matrix\n(Random Forest)")
 
+    # Panel J: Model comparison bars — y-axis from 0.5 so differences between models are visible
     ax_J = fig.add_subplot(gs[2, 3])
     model_names = list(results.keys())
     accs = [results[m]["acc"] for m in model_names]
     aucs = [results[m]["auc"] for m in model_names]
-    xj   = np.arange(len(model_names))
-    wj   = 0.32
-    ax_J.bar(xj - wj/2, accs, wj, color=PAL["primary"],
-             label="Accuracy", alpha=0.85)
-    ax_J.bar(xj + wj/2, aucs, wj, color=PAL["teal"],
-             label="AUC-ROC",  alpha=0.85)
+    xj, wj = np.arange(len(model_names)), 0.32
+    ax_J.bar(xj - wj/2, accs, wj, color=PAL["primary"], label="Accuracy", alpha=0.85)
+    ax_J.bar(xj + wj/2, aucs, wj, color=PAL["teal"],    label="AUC-ROC",  alpha=0.85)
     ax_J.set_ylim(0.5, 1.05)
     ax_J.set_xticks(xj)
     ax_J.set_xticklabels(["RF", "GB", "SVM"], fontsize=9)
     ax_J.set_ylabel("Score", fontsize=9)
     ax_J.legend(fontsize=8)
     ax_J.set_facecolor(PAL["white"])
+    # value labels on each bar — saves having to read the y-axis for exact numbers
     for bar in ax_J.patches:
         ax_J.text(bar.get_x() + bar.get_width()/2,
                   bar.get_height() + 0.01,
@@ -562,6 +584,7 @@ def make_figure(subjects, labels, X, results):
     add_title(ax_J, "J  Model Comparison")
 
     out = "knee_mri_poc_results.png"
+    # savefig before close — close() wipes the figure from memory
     plt.savefig(out, dpi=150, bbox_inches="tight", facecolor=PAL["bg"])
     plt.close()
     print(f"\n  Figure saved: {out}")
@@ -578,12 +601,14 @@ if __name__ == "__main__":
     print("  Nosa Peter Inwe  |  van Heeswijk Lab, CHUV/UNIL")
     print("=" * 60)
 
+    # step 1: generate synthetic paired maps — replace with real scanner data when available
     print("\n[1/4]  Generating synthetic T2 and T1rho maps ...")
     raw_subjects, y = generate_dataset(n_healthy=60, n_oa=60)
     subjects = [(t2, t1rho, masks) for t2, t1rho, masks in raw_subjects]
     print(f"       {len(y)} subjects: {(y==0).sum()} healthy, {(y==1).sum()} OA")
     print(f"       Map resolution: 128 x 128 pixels, 6 cartilage compartments")
 
+    # step 2: extract features — 51 features per subject (48 compartment + 3 global)
     print("\n[2/4]  Extracting compartment-level features ...")
     X = np.array([extract_features(t2, t1rho, masks)
                   for t2, t1rho, masks in subjects])

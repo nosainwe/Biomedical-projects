@@ -1,4 +1,3 @@
-
 # ❤️ Accelerated 3D Cardiac T2 Mapping with KWIC
 
 **3D whole-heart T2 mapping using radial k-space sampling and KWIC filtering**
@@ -163,13 +162,6 @@ This approach shows how to:
 - Integrate motion correction  
 - Extend to deep reconstruction models  
 - Combine with T1 mapping (multi-parametric MRI)  
-
----
-
-## 👤 Author
-
-**Nosa Peter Inwe**  
-Intelligent Photonics | Biomedical Imaging | Machine Learning  
 
 ---
 

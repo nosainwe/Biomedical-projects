@@ -37,7 +37,7 @@ NX = 64;              % k-space / image width
 NY = 64;              % k-space / image height
 NZ = 8;               % number of slices (base to apex)
 
-% T2prep durations in ms — matches the SKRATCH protocol (Darçot et al. 2019)
+% T2prep durations in ms -matches the SKRATCH protocol (Darçot et al. 2019)
 T2PREP = [0, 25, 45, 60];   % ms
 N_T2PREP = length(T2PREP);
 
@@ -47,18 +47,18 @@ N_LINES_UNDER = 24;   % radial spokes for undersampled acquisition (2.5x accel)
 SNR           = 20;   % signal-to-noise ratio of simulated acquisition
 
 % KWIC filter: fraction of k-space radius that is the "centre" region
-% Centre encodes contrast — keep from target image only
-% Periphery — average across all T2prep images (and kz neighbours in 3D)
+% Centre encodes contrast -keep from target image only
+% Periphery -average across all T2prep images (and kz neighbours in 3D)
 KWIC_CENTRE_FRAC = 0.30;   % 30% of k-space radius = centre region
 
-% Golden angle (radians) — optimal radial spoke increment
+% Golden angle (radians) -optimal radial spoke increment
 GOLDEN_ANGLE = pi * (3 - sqrt(5));   % ~1.9416 rad = ~111.25 deg
 
 % Clinical reference values at 3T
-T2_MYO_NORMAL = 42;    % ms — healthy myocardium
-T2_EDEMA      = 62;    % ms — edematous myocardium (>50 ms = abnormal)
-T2_BLOOD      = 250;   % ms — blood pool (long T2 of free water)
-T2_THRESH     = 50;    % ms — clinical edema detection threshold
+T2_MYO_NORMAL = 42;    % ms -healthy myocardium
+T2_EDEMA      = 62;    % ms -edematous myocardium (>50 ms = abnormal)
+T2_BLOOD      = 250;   % ms -blood pool (long T2 of free water)
+T2_THRESH     = 50;    % ms -clinical edema detection threshold
 
 %% ──────────────────────────────────────────────────────────────────────────
 %  STEP 1: BUILD 3D CARDIAC PHANTOM
@@ -74,7 +74,7 @@ mask_blood = false(NZ, NY, NX);
 cy = NY/2;  cx = NX/2;   % centre coordinates
 
 for z = 1:NZ
-    % Taper from base (z=1) to apex (z=NZ) — heart narrows toward apex
+    % Taper from base (z=1) to apex (z=NZ) -heart narrows toward apex
     taper   = 1.0 - 0.55 * (z-1)/(NZ-1);
     r_outer = round(26 * taper);   % outer myocardial radius
     r_inner = round(16 * taper);   % inner (blood pool) radius
@@ -153,7 +153,7 @@ centre_mask = dist_k_norm <= KWIC_CENTRE_FRAC;
 periph_mask = ~centre_mask;
 
 %% Helper functions defined as nested functions at end of file
-% (called below — see definitions at end)
+% (called below -see definitions at end)
 
 %% ── CONDITION A: Full sampling (reference) ─────────────────────────────
 T2_Full = zeros(NZ, NY, NX);
@@ -496,7 +496,7 @@ fprintf('=============================================================\n');
 
 %% ==========================================================================
 %  LOCAL HELPER FUNCTIONS
-%  (defined below main script — MATLAB requires functions at end of file)
+%  (defined below main script -MATLAB requires functions at end of file)
 %% ==========================================================================
 
 % ── sample_radial_kspace ──────────────────────────────────────────────────
@@ -622,7 +622,7 @@ logS = log(max(S_mat, eps_floor));   % (N x NY*NX)
 
 % Least-squares: [ones, te] * [a; b] = logS
 A     = [ones(N,1), te];
-coeff = (A' * A) \ (A' * logS);   % (2 x NY*NX) — slope in row 2
+coeff = (A' * A) \ (A' * logS);   % (2 x NY*NX) -slope in row 2
 
 slope = coeff(2, :);   % -1/T2
 

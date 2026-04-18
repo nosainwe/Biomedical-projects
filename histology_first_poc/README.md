@@ -1,42 +1,42 @@
-# Histology First POC for Marina Eckermann
+# Histology POC
 
-This repo is a small, clean proof of concept.
+I built this repo as a small, clean proof of concept.
 
 I kept the first version narrow on purpose.
 
-Instead of pretending I already have a public dataset that cleanly joins synchrotron CT, histology, and spatial transcriptomics, I start with one modality that is public, small enough to run locally, and easy to explain in a meeting: histology image tiles.
+Instead of pretending I already have a public dataset that cleanly joins synchrotron CT, histology, and spatial transcriptomics, I started with one modality that is public, small enough to run locally, and easy to explain in a meeting: histology image tiles.
 
-## Why this dataset
+## Why I chose this dataset
 
-I suggest using **Colorectal Histology MNIST** from Kaggle.
+I chose **Colorectal Histology MNIST** from Kaggle.
 
-Why this one:
+Why I picked it:
 
 - it is small enough to run without turning the notebook into a week-long training job
 - it has **5,000 RGB histology tiles**
 - each tile is **150 x 150 px**
 - it contains **8 tissue classes**
-- it is easy to explain as a stepping stone toward cross-modal biomedical analysis
+- it is easy to explain as a first step toward cross-modal biomedical analysis
 
 Kaggle page:
 https://www.kaggle.com/datasets/kmader/colorectal-histology-mnist
 
 ## What this POC does
 
-The notebook does four things:
+In this notebook, I do four things:
 
-1. loads and inspects histology tiles
-2. builds a classical baseline using texture and colour features
-3. trains a small CNN baseline
-4. exports per-tile embeddings and metadata so the workflow is ready for later matching with CT regions or transcriptomic spots
+1. load and inspect histology tiles
+2. build a classical baseline using texture and colour features
+3. train a small CNN baseline
+4. export per-tile embeddings and metadata so the workflow is ready for later matching with CT regions or transcriptomic spots
 
 That last part matters.
 
-The point is not only to classify tissue tiles. The point is to show a clean path from image data to embeddings that can later be linked across modalities.
+My point is not only to classify tissue tiles. My point is to show a clean path from image data to embeddings that can later be linked across modalities.
 
 ## Expected dataset structure
 
-After downloading the Kaggle dataset, place it like this:
+After downloading the Kaggle dataset, I place it like this:
 
 ```text
 data/
@@ -50,9 +50,8 @@ data/
         ├── 06_MUCOSA/
         ├── 07_ADIPOSE/
         └── 08_EMPTY/
-```
 
-If your extracted folder name differs slightly, just update the `DATA_DIR` path in the notebook.
+If the extracted folder name differs slightly, I just update the DATA_DIR path in the notebook.
 
 ## Files
 

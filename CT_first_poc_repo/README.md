@@ -78,9 +78,3 @@ I am trying to answer three simple questions:
 - can I export stable embeddings that could later support more serious downstream analysis?
 
 If the answer to those is yes, then this repo has done its job.
-
-## Notes
-
-This repo is intentionally simple.
-
-I would rather show a smaller pipeline that is real, readable, and easy to explain than build something bloated that I cannot defend line by line.

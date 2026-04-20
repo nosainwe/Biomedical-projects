@@ -2,10 +2,6 @@
 
 I built this repo as a small, separate proof of concept for CT image analysis.
 
-I kept it narrow on purpose.
-
-I did not want to pretend I already had a public dataset that pairs cleanly with histology or transcriptomics. So I treated CT as its own branch and built a workflow I can actually explain, defend, and extend later.
-
 ## Why I chose this dataset
 
 I use the **CT-Scan images** dataset from Kaggle.

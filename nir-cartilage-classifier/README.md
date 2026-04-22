@@ -1,6 +1,5 @@
 # NIR Spectral Classifier for Cartilage Health Assessment
 
-> Proof-of-concept ML pipeline for classifying Near-Infrared (NIR) spectra into **Healthy vs. Osteoarthritic (OA)** cartilage tissue - built in the context of Prof. Isaac Afara's [Biomedical Spectroscopy Laboratory (BSL)](https://uefconnect.uef.fi/en/group/biomedical-spectroscopy-laboratory/) research at the University of Eastern Finland (UEF).
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3%2B-orange)](https://scikit-learn.org)

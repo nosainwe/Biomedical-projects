@@ -1,52 +1,60 @@
-# Temporal ConvLSTM POC for Spectral Monitoring
+# 🌱 Temporal ConvLSTM POC for Spectral Monitoring
 
-I built this repo as a first-principles learning project for temporal modelling.
+I built this repo as a **first-principles learning project** for **temporal modelling**. 
 
-I did not want to jump straight into a tissue-engineering notebook full of shortcuts and unexplained code. So I start with a real public multivariate time-series dataset and learn the modelling logic first.
+I did not want to jump straight into a complex tissue-engineering notebook full of shortcuts and unexplained code. Instead, I wanted to start with a real, publicly available **multivariate time-series dataset** and focus on understanding the core modelling logic first. 🚀
 
-## Why this repo exists
+---
 
-Temporal monitoring of tissue constructs rather than one-shot endpoint prediction.
+## 🎯 Why this repo exists
 
-That matters. A model trained on only two far-apart time points can look strong because the biological states are already very different. The harder and more useful problem is different:
+This repo is built to explore **temporal monitoring of tissue constructs**, rather than just predicting endpoints. 🧬
 
-- how does the signal evolve over time?
-- can I learn the trajectory rather than only classify the endpoints?
-- can I predict when the system is approaching a target state?
+That matters because:
+- A model trained on only **two far-apart time points** can look strong due to large differences in biological states. But that’s not a real-world solution.
+- The **real problem** is learning how the signal evolves over time:  
+  - **How does the signal evolve over time?**
+  - **Can I learn the trajectory** rather than just classify the endpoints?
+  - **Can I predict** when the system is approaching a target state? 🎯
 
-## Why the temporal angle is justified
+---
 
-The 2025 tissue-engineered cartilage maturity paper used constructs cultured for only **7 or 28 days**, then predicted GAG and DNA and used the predicted GAG/DNA ratio to distinguish immature from more mature constructs. The paper itself says this setup used only **two culture durations with distinct biochemical differences**, and that **closer time points are needed** to test robustness in real-world tissue-engineering problems. It also says continuous monitoring could reveal **plateaus, fluctuations, and post-peak declines** that endpoint measurements would miss.
+## ⏳ Why the Temporal Angle is Justified
 
-The 2025 culture-medium paper is closer to a true temporal setup. It collected conditioned medium every **3 days over 28 days**, then linked NIR spectra to biomarker release patterns such as hyaluronan, lactate, and collagen.
+The 2025 tissue-engineered cartilage maturity paper used constructs cultured for only **7 or 28 days**, predicting **GAG** and **DNA** levels. This setup was based on just two culture durations with distinct biochemical differences. The authors state that **closer time points are needed** to test the model’s robustness for real-world tissue-engineering problems.
 
-So the gap is clear:
+The paper highlights that **continuous monitoring** can reveal **plateaus, fluctuations, and post-peak declines** that endpoint measurements alone cannot capture. 📉
 
-- endpoint models answer “are these two states different?”
-- temporal models answer “how is this construct changing, and where is it heading?”
+The gap is clear:
+- **Endpoint models** answer “**Are these two states different?**”
+- **Temporal models** answer “**How is this construct changing, and where is it heading?**”
 
-## Dataset choice
+---
 
-I use the Jena Climate dataset.
+## 🌍 Dataset Choice
 
-The original task is weather forecasting, not tissue engineering. I am using it because the modelling logic is the part I want to learn first:
+For this project, I’m using the **Jena Climate Dataset**. 🌦️
 
-- each timestamp has a vector of measurements
-- those measurements evolve over time
-- future values depend on temporal context, not only the current reading
+The original task in this dataset is **weather forecasting**, but I’m using it because:
+- Each timestamp contains a vector of measurements (e.g., temperature, humidity, pressure).
+- These measurements evolve over time, and future values depend on **temporal context**, not just the current reading.
 
-In a tissue-engineering setting, I would later replace “sensor vector at time t” with “spectral vector or biomarker vector at time t”.
+In a **tissue-engineering setting**, I would later replace the "sensor vector at time t" with "**spectral vector**" or "**biomarker vector**" at time t.
 
-## What the notebook does
+---
 
-1. downloads and inspects the dataset
-2. builds sliding windows
-3. trains a dense baseline
-4. trains an LSTM baseline
-5. trains a ConvLSTM baseline by reshaping windows into pseudo-images
-6. compares the models and connects the result back to longitudinal spectroscopy
+## 🛠️ What the notebook does
 
-## Repo structure
+1. **Download and inspect** the Jena Climate dataset 🌦️
+2. **Build sliding windows** to prepare the time-series data for supervised learning ⏳
+3. Train a **dense baseline model** to predict future values 💻
+4. Train an **LSTM baseline model** for temporal learning 📊
+5. Train a **ConvLSTM baseline model** by reshaping the windows into **pseudo-images** 🌌
+6. Compare the models and connect the results back to **longitudinal spectroscopy** 💡
+
+---
+
+## 📁 Repo Structure
 
 ```text
 Temporal ConvLSTM POC for Spectral Monitoring/
@@ -57,33 +65,47 @@ Temporal ConvLSTM POC for Spectral Monitoring/
     └── temporal_convlstm_first_principles.ipynb
 ```
 
-## Install
+---
 
-```bash
+## ⚙️ Install
+
+First, create a virtual environment and install the required dependencies:
+
+```bash id="mk1zk3"
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts ctivate
 pip install -r requirements.txt
 ```
 
-## Run
+---
 
-```bash
+## ▶️ Run
+
+To run the Jupyter notebook:
+
+```bash id="1o7oal"
 jupyter notebook notebooks/temporal_convlstm_first_principles.ipynb
 ```
 
-## What I want to demonstarte from this repo
+---
 
-- what makes a problem temporal rather than static
-- how sliding windows turn sequences into supervised learning samples
-- what an LSTM remembers
-- what a ConvLSTM adds on top of that
-- when temporal modelling is actually useful for longitudinal spectroscopy
+## 💡 What I Want to Demonstrate from This Repo
 
-## How I would translate this later
+- **What makes a problem temporal** rather than static ⏳
+- How **sliding windows** convert sequences into supervised learning samples 📊
+- What **LSTM** remembers when predicting over time 🔄
+- What **ConvLSTM** adds on top of that 🧠
+- **When temporal modelling** is actually useful for **longitudinal spectroscopy** 🔬
 
-Once I understand this notebook properly, the next step is straightforward:
+---
 
-- replace the public time-series dataset with repeated spectral measurements of the same construct over time
-- let each time step contain a spectrum or a compact feature vector
-- predict a future biomarker, maturity score, or time-to-threshold
-- compare whether dense, LSTM, or ConvLSTM handles the trajectory best
+## 🚀 How I Would Translate This Later
+
+Once I fully understand the notebook, the next step would be straightforward:
+
+- Replace the public time-series dataset with **repeated spectral measurements** of the same tissue construct over time 🌱
+- Let each time step contain a **spectrum** or a **compact feature vector**
+- **Predict a future biomarker**, maturity score, or **time-to-threshold** ⏱️
+- Compare whether **dense, LSTM, or ConvLSTM** models handle the trajectory best 🤖
+
+This would help explore **continuous tissue monitoring** in a more realistic setting. 🔬

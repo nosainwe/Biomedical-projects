@@ -15,7 +15,7 @@
 %
 % WHY THIS MATTERS FOR THE PROJECT
 % --------------------------------
-% The thesis opportunity is about reconstructing and analysing cardiac T1-T2
+% This describes the method of reconstructing and analysing cardiac T1-T2
 % maps and possibly extending methods to other tissues such as the knee.
 % This code shows that I understand the three layers that matter in that work:
 %

@@ -1,50 +1,79 @@
-# CT First POC
+````markdown
+# 🧠 CT First POC
 
-I built this repo as a small, separate proof of concept for CT image analysis.
+A lightweight proof of concept for CT image analysis, focused on building a clean, reproducible pipeline rather than chasing heavy compute.
 
-## Why I chose this dataset
+---
 
-I use the **CT-Scan images** dataset from Kaggle.
+## 🎯 Motivation
 
-Kaggle page:
-https://www.kaggle.com/datasets/orvile/ct-scan-images
+This repo is a small, focused experiment to answer a simple question:
 
-Why I picked it:
+> *Can I build a solid end-to-end CT analysis pipeline that produces meaningful features and reusable representations?*
 
-- it is small enough to run locally without turning this into a long training job
-- the class story is easy to explain
-- it lets me focus on pipeline quality instead of compute
-- it is a good fit for learning the basics of CT image analysis, feature extraction, baseline modelling, CNN training, and embedding export
+Instead of scaling complexity early, the emphasis here is on clarity, structure, and learning signals.
 
-## What this POC does
+---
 
-In this notebook, I do six things:
+## 📦 Dataset
 
-1. load and inspect the CT images
-2. check the class balance
-3. build a classical baseline using grayscale texture features
-4. train a small CNN baseline
-5. evaluate both models with confusion matrices and classification reports
-6. export per-image embeddings and metadata for later downstream analysis
+I use the **CT-Scan Images** dataset from Kaggle:
 
-That last part matters.
+🔗 https://www.kaggle.com/datasets/orvile/ct-scan-images
 
-The point is not only to classify scans. The point is to turn each scan into a compact learned fingerprint that I can later compare, group, visualise, or align with other sources of information once I have real paired data.
+### Why this dataset?
 
-## Expected dataset structure
+- ⚡ Small enough to run locally without long training cycles  
+- 🧩 Clear class separation (Cancer vs Non-Cancer)  
+- 🧪 Ideal for testing pipeline design choices  
+- 🧠 Covers key steps: feature extraction, baseline models, CNNs, embeddings  
 
-After downloading the Kaggle dataset, I place it like this:
+---
+
+## 🛠️ What This POC Does
+
+The notebook walks through a full mini-pipeline:
+
+1. 📂 Load and inspect CT images  
+2. ⚖️ Analyse class distribution  
+3. 🧱 Build a classical baseline (grayscale texture features)  
+4. 🤖 Train a small CNN baseline  
+5. 📊 Evaluate using confusion matrices + classification reports  
+6. 🧬 Export embeddings + metadata for each image  
+
+---
+
+## 💡 Why Embeddings Matter
+
+This project goes beyond classification.
+
+Each CT scan is converted into a compact learned representation (embedding), enabling:
+
+- 🔍 similarity search  
+- 🧭 clustering and grouping  
+- 📉 visualisation (e.g. PCA, t-SNE)  
+- 🔗 future alignment with multimodal or clinical data  
+
+Think of it as turning images into structured, reusable signals.
+
+---
+
+## 📁 Expected Dataset Structure
+
+After downloading and extracting:
 
 ```text
 data/
 └── ct-scan-images/
     ├── Cancer/
     └── Non-Cancer/
-```
+````
 
-If the extracted folder name differs slightly, I just update the `DATA_DIR` path in the notebook.
+> If the folder name differs, update `DATA_DIR` in the notebook.
 
-## Repo structure
+---
+
+## 🗂️ Repo Structure
 
 ```text
 ct_first_poc_repo/
@@ -55,7 +84,9 @@ ct_first_poc_repo/
     └── ct_first_poc.ipynb
 ```
 
-## Install
+---
+
+## ⚙️ Setup
 
 ```bash
 python -m venv .venv
@@ -63,18 +94,78 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Run
+---
+
+## ▶️ Run
 
 ```bash
 jupyter notebook notebooks/ct_first_poc.ipynb
 ```
 
-## What I am trying to get from this POC
+---
 
-I am trying to answer three simple questions:
+## 🔍 Key Questions
 
-- can I extract meaningful structure from these CT images using a clean baseline pipeline?
-- does a small CNN learn something stronger than handcrafted texture features?
-- can I export stable embeddings that could later support more serious downstream analysis?
+This POC is designed to answer:
 
-If the answer to those is yes, then this repo has done its job.
+* ❓ Can a clean baseline pipeline extract useful structure from CT images?
+* ❓ Does a small CNN outperform handcrafted texture features?
+* ❓ Are the learned embeddings stable and useful for downstream tasks?
+
+If the answer is **yes**, this repo has done exactly what it was meant to do.
+
+---
+
+## 🚧 Future Directions
+
+* 📈 Stronger architectures (ResNet, EfficientNet)
+* 🧪 Data augmentation and regularisation
+* 🧬 Embedding evaluation (clustering metrics, retrieval tasks)
+* 🔗 Integration with clinical or multimodal datasets
+
+---
+
+## 📜 License
+
+MIT License
+
+```
+MIT License
+
+Copyright (c) 2026
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 🤝 Contributions
+
+This is a personal POC, but ideas, suggestions, and improvements are always welcome.
+
+---
+
+## ✨ Final Note
+
+Simple, clear pipelines beat complex setups that are hard to reason about.
+
+This repo stays intentionally small so every step is easy to follow and justify.
+
+```
+```

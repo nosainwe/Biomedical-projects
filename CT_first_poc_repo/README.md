@@ -1,6 +1,6 @@
 # 🩻 CT First POC
 
-We built this proof of concept because scaling complexity too early kills projects. I don't want to guess whether a bare-bones pipeline extracts meaningful features from medical imaging — I want to see it work. You'll often find yourself stuck tweaking hyperparameters instead of understanding the data. I reject that approach entirely. Start small. Learn the signals.
+We built this proof of concept because scaling complexity too early kills projects. I don't want to guess whether a bare-bones pipeline extracts meaningful features from medical imaging, I want to see it work. You'll often find yourself stuck tweaking hyperparameters instead of understanding the data. I reject that approach entirely. Start small. Learn the signals.
 
 ---
 

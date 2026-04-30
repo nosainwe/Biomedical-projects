@@ -1,6 +1,6 @@
 # Biomedical-projects
 
-Machine learning pipelines for biomedical imaging and spectroscopy, from NIR tissue analysis to histology, CT, MRI, and temporal modelling. The repo focuses on tissue characterisation, disease detection, longitudinal monitoring, and signal-aware analysis across imaging and spectral data.
+Machine learning pipelines for biomedical imaging and spectroscopy, from NIR tissue analysis to histology, CT, MRI, temporal modelling, and bioprocess monitoring. The repo focuses on tissue characterisation, disease detection, longitudinal monitoring, and signal-aware analysis across imaging and spectral data.
 
 Each project is self-contained and includes its own setup and run instructions.
 
@@ -17,6 +17,7 @@ Each project is self-contained and includes its own setup and run instructions.
 | [🧬 Histology First POC](./histology_first_poc/) | Histology analysis proof of concept built around tissue-image classification and feature learning. Includes dataset inspection, classical handcrafted baselines, CNN modelling, and embedding export for later downstream or cross-modal analysis. Designed as a clean biomedical imaging starting point rather than an overblown demo. | PyTorch, scikit-learn, NumPy, pandas, Matplotlib |
 | [🩻 CT First POC](./CT_first_poc_repo/) | Separate CT analysis proof of concept focused on grayscale medical image understanding. Includes image inspection, handcrafted texture baselines, CNN classification, confusion-matrix analysis, and embedding export. Built as a stand-alone CT branch rather than pretending CT is already paired with other modalities. | PyTorch, scikit-learn, scikit-image, NumPy, pandas, Matplotlib |
 | [⏱️ Temporal ConvLSTM POC for Spectral Monitoring](./Temporal%20ConvLSTM%20POC%20for%20Spectral%20Monitoring/) | First-principles temporal modelling project built to understand longitudinal prediction before applying it to tissue-engineering spectra. Compares dense, LSTM, and ConvLSTM baselines on multivariate sequences, with the later goal of modelling spectral maturity trajectories rather than only endpoint separation. | TensorFlow, Keras, NumPy, pandas, scikit-learn, Matplotlib |
+| [🧫 Raman Bioprocess Temporal Monitoring](./raman-bioprocess-temporal-monitoring/) | Temporal monitoring proof-of-concept using Raman-style bioprocess data from penicillin fermentation. Predicts current process age in days and days remaining to an 80% production threshold from spectral and process trajectories. Built as a transferable proxy for real-time spectroscopic monitoring of biological growth and tissue-engineering maturity workflows. | TensorFlow, Keras, scikit-learn, pandas, NumPy, Matplotlib |
 
 ---
 
@@ -27,7 +28,9 @@ Each folder typically contains:
 - `README.md` - project overview, background, setup, and notes
 - `requirements.txt` - Python dependencies
 - `*.py` or `*.ipynb` - the main script or notebook
+- `src/` - helper functions for projects that need cleaner code organisation
 - `assets/` or `outputs/` - optional output figures or saved results
+- `models/` - saved model files when they are small enough or when the project expects local exports
 
 Click any project above to inspect the code and project notes directly.
 
@@ -38,13 +41,15 @@ Click any project above to inspect the code and project notes directly.
 This repo sits at the intersection of **biomedical imaging, spectroscopy, temporal modelling, and machine learning**:
 
 - Near-Infrared spectroscopy and tissue characterisation
+- Raman-style spectral monitoring for biological production processes
 - Spectral preprocessing: Savitzky-Golay filtering, Multiplicative Scatter Correction, derivative transforms
 - Chemometrics methods: PLS-DA, feature importance, ROC/AUC evaluation
 - Deep learning for medical image classification: transfer learning, augmentation strategies, KL grading
 - Quantitative MRI analysis: T2 and T1ρ mapping, feature fusion, spatial abnormality detection
 - Histology and CT image analysis: texture features, CNN baselines, embeddings
-- Temporal modelling for repeated measurements: sliding windows, sequence learning, ConvLSTM
-- Biomedical applications: cartilage health, osteoarthritis detection, tissue maturity monitoring, image-derived biomarkers
+- Temporal modelling for repeated measurements: sliding windows, sequence learning, LSTM, ConvLSTM
+- Bioprocess and tissue-engineering monitoring: process age estimation, days-to-threshold prediction, maturity-trajectory framing
+- Biomedical applications: cartilage health, osteoarthritis detection, tissue maturity monitoring, image-derived biomarkers, non-destructive process monitoring
 
 ---
 
@@ -53,6 +58,8 @@ This repo sits at the intersection of **biomedical imaging, spectroscopy, tempor
 I use this repo to keep my biomedical work in one place, but also to make the progression visible.
 
 Some projects are straightforward classifiers. Some are research-style proof-of-concept studies. A few are there because I needed to understand the method properly before using it in a real biomedical setting. That part matters. I would rather keep an honest learning project in public than fake maturity with a polished title and shaky logic.
+
+The temporal monitoring projects are especially important to me because they move beyond one-shot prediction. In tissue engineering and bioprocessing, the useful question is often not only “what state is this sample in now?” but also “where is this biological system heading, and how long until it reaches a useful threshold?”
 
 ---
 

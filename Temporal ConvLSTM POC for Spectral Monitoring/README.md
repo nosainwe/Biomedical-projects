@@ -108,4 +108,3 @@ Once I fully understand the notebook, the next step would be straightforward:
 - **Predict a future biomarker**, maturity score, or **time-to-threshold** ⏱️
 - Compare whether **dense, LSTM, or ConvLSTM** models handle the trajectory best 🤖
 
-This would help explore **continuous tissue monitoring** in a more realistic setting. 🔬

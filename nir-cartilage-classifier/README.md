@@ -73,274 +73,354 @@ Order matters here - each step builds on the previous one:
 
 ---
 
+---
+
 ## Mathematical Background
 
-This project is not just a machine learning demo. The pipeline is built around the mathematics of spectral signal processing, chemometrics, and supervised classification.
+The pipeline treats each NIR spectrum as a high-dimensional signal. Each sample is represented as an absorbance vector measured across the wavelength range:
 
-Each NIR spectrum is treated as a numerical vector:
-
-\[
-x_i = [A(\lambda_1), A(\lambda_2), ..., A(\lambda_p)]
-\]
-
-where:
-
-- \(x_i\) is the spectrum for sample \(i\)
-- \(A(\lambda)\) is the absorbance at wavelength \(\lambda\)
-- \(p\) is the number of wavelength points, here 1001
-- the target label is \(y_i = 0\) for healthy cartilage and \(y_i = 1\) for OA cartilage
-
-So the dataset can be written as:
-
-\[
-X \in \mathbb{R}^{n \times p}, \quad y \in \{0,1\}^{n}
-\]
-
-where \(n\) is the number of spectra and \(p\) is the number of wavelength variables.
-
----
-
-### Absorbance and Spectral Features
-
-NIR spectroscopy is based on how tissue absorbs light at different wavelengths. In simple form, absorbance is defined as:
-
-\[
-A = \log_{10}\left(\frac{I_0}{I}\right)
-\]
+$$
+\mathbf{x}_i =
+\left[
+A(\lambda_1), A(\lambda_2), \ldots, A(\lambda_p)
+\right]
+$$
 
 where:
 
-- \(I_0\) is the incident light intensity
-- \(I\) is the transmitted or reflected intensity measured by the detector
+| Symbol | Meaning |
+|---|---|
+| $\mathbf{x}_i$ | Spectrum for sample $i$ |
+| $A(\lambda_j)$ | Absorbance at wavelength $\lambda_j$ |
+| $p$ | Number of wavelength points |
+| $y_i$ | Class label: $0 =$ Healthy, $1 =$ OA |
 
-Higher absorbance at a wavelength means the tissue is interacting more strongly with light at that wavelength. In cartilage, different molecules produce absorption features at different regions of the NIR spectrum.
+The full dataset is therefore:
 
-The important idea is that the machine learning model does not see cartilage directly. It sees a high-dimensional absorbance vector and learns which wavelength patterns separate healthy cartilage from OA-like cartilage.
+$$
+\mathbf{X} \in \mathbb{R}^{n \times p},
+\qquad
+\mathbf{y} \in \{0,1\}^{n}
+$$
+
+where $n$ is the number of spectra and $p$ is the number of wavelength variables.
 
 ---
 
-### Savitzky-Golay Smoothing
+### 1. Absorbance Model
 
-The Savitzky-Golay filter reduces high-frequency noise while preserving the shape of spectral peaks. Instead of simply averaging neighbouring points, it fits a local polynomial to a small moving window.
+NIR spectroscopy measures how strongly tissue interacts with light at different wavelengths. Absorbance is commonly expressed as:
 
-For a local wavelength window, the signal is approximated by:
+$$
+A(\lambda) =
+\log_{10}
+\left(
+\frac{I_0(\lambda)}{I(\lambda)}
+\right)
+$$
 
-\[
-A(\lambda) \approx a_0 + a_1\lambda + a_2\lambda^2 + ... + a_k\lambda^k
-\]
+where:
 
-where \(k\) is the polynomial order.
+| Symbol | Meaning |
+|---|---|
+| $I_0(\lambda)$ | Incident light intensity |
+| $I(\lambda)$ | Measured transmitted or reflected intensity |
+| $A(\lambda)$ | Absorbance at wavelength $\lambda$ |
+
+The classifier does not see cartilage directly. It sees numerical absorbance patterns. The goal is to learn a mapping:
+
+$$
+f: \mathbf{x}_i \mapsto y_i
+$$
+
+so that biochemical changes in cartilage are detected from spectral changes.
+
+In this project, the most important region is around **2100 nm**, where proteoglycan-related absorption changes are expected.
+
+---
+
+### 2. Savitzky-Golay Smoothing
+
+Raw spectra contain noise. Savitzky-Golay smoothing reduces this noise while preserving peak shape. For each local wavelength window, the spectrum is approximated by a polynomial:
+
+$$
+A(\lambda)
+\approx
+a_0 + a_1\lambda + a_2\lambda^2 + \cdots + a_k\lambda^k
+$$
+
+where $k$ is the polynomial order.
 
 In this project:
 
-- smoothing window = 11
-- polynomial order = 3
+| Parameter | Value |
+|---|---|
+| Window length | 11 |
+| Polynomial order | 3 |
 
-This means each point is replaced using a cubic polynomial fitted to nearby wavelength values. This is useful because NIR peaks are broad and smooth, so preserving peak shape matters more than preserving random noise.
+So each local region is fitted with a cubic polynomial. This is better than a simple moving average because it smooths the signal without flattening chemically meaningful absorption peaks.
 
 ---
 
-### Multiplicative Scatter Correction
+### 3. Multiplicative Scatter Correction
 
-Cartilage spectra can vary because of tissue scattering, surface roughness, sample thickness, and measurement geometry. These effects can shift or scale the whole spectrum even when the underlying chemistry is similar.
+Biological tissue spectra are affected by scattering, sample thickness, surface roughness, and measurement geometry. These effects can shift or scale the whole spectrum.
 
-MSC assumes that each measured spectrum \(x_i\) can be approximated as a scaled and shifted version of a reference spectrum \(x_{ref}\):
+MSC models each measured spectrum as:
 
-\[
-x_i = a_i + b_i x_{ref} + e_i
-\]
+$$
+\mathbf{x}_i
+=
+a_i
++
+b_i\mathbf{x}_{ref}
++
+\mathbf{e}_i
+$$
 
 where:
 
-- \(a_i\) is the additive offset
-- \(b_i\) is the multiplicative scaling factor
-- \(e_i\) is the residual error
-- \(x_{ref}\) is usually the mean spectrum of the dataset
+| Symbol | Meaning |
+|---|---|
+| $\mathbf{x}_i$ | Measured spectrum |
+| $\mathbf{x}_{ref}$ | Reference spectrum, usually the mean spectrum |
+| $a_i$ | Additive offset |
+| $b_i$ | Multiplicative scaling coefficient |
+| $\mathbf{e}_i$ | Residual error |
 
-The corrected spectrum is then:
+The corrected spectrum is:
 
-\[
-x_{i,MSC} = \frac{x_i - a_i}{b_i}
-\]
+$$
+\mathbf{x}_{i,MSC}
+=
+\frac{\mathbf{x}_i - a_i}{b_i}
+$$
 
-This makes the spectra more comparable by reducing non-chemical variation. In practical terms, MSC tries to make the model focus on biochemical differences instead of measurement artefacts.
-
----
-
-### Second Derivative Spectroscopy
-
-The second derivative is used to sharpen overlapping absorption bands and remove broad baseline drift.
-
-For a spectrum \(A(\lambda)\), the second derivative is:
-
-\[
-\frac{d^2A}{d\lambda^2}
-\]
-
-In discrete spectral data, this is estimated numerically using the Savitzky-Golay derivative filter.
-
-The second derivative helps because broad baseline effects change slowly with wavelength, while real absorption peaks change more rapidly. After differentiation, subtle peaks around chemically meaningful wavelengths become easier for the model to detect.
-
-This is especially useful near the **~2100 nm** region, where proteoglycan-related absorption changes may be small but diagnostically important.
+MSC reduces variation that comes from scattering rather than chemistry. This helps the classifier focus on molecular differences between healthy and OA-like cartilage.
 
 ---
 
-### Difference Spectrum
+### 4. Second Derivative Spectroscopy
 
-The difference spectrum compares the average healthy spectrum with the average OA spectrum:
+The second derivative enhances subtle spectral features and suppresses broad baseline drift:
 
-\[
-\Delta A(\lambda) = \bar{A}_{healthy}(\lambda) - \bar{A}_{OA}(\lambda)
-\]
+$$
+A''(\lambda)
+=
+\frac{d^2 A(\lambda)}{d\lambda^2}
+$$
+
+For discrete spectra, this derivative is estimated numerically using a Savitzky-Golay derivative filter.
+
+In this project:
+
+| Parameter | Value |
+|---|---|
+| Derivative order | 2 |
+| Window length | 15 |
+| Polynomial order | 3 |
+
+The second derivative is useful because broad baseline effects change slowly with wavelength, while absorption bands change more sharply. This makes hidden or overlapping peaks easier to detect.
+
+---
+
+### 5. Difference Spectrum
+
+The difference spectrum shows which wavelengths separate the two classes most strongly:
+
+$$
+\Delta A(\lambda)
+=
+\overline{A}_{Healthy}(\lambda)
+-
+\overline{A}_{OA}(\lambda)
+$$
 
 where:
 
-\[
-\bar{A}_{healthy}(\lambda) = \frac{1}{n_h}\sum_{i=1}^{n_h} A_i(\lambda)
-\]
+$$
+\overline{A}_{Healthy}(\lambda)
+=
+\frac{1}{n_H}
+\sum_{i=1}^{n_H}
+A_i(\lambda)
+$$
 
 and:
 
-\[
-\bar{A}_{OA}(\lambda) = \frac{1}{n_o}\sum_{i=1}^{n_o} A_i(\lambda)
-\]
+$$
+\overline{A}_{OA}(\lambda)
+=
+\frac{1}{n_{OA}}
+\sum_{i=1}^{n_{OA}}
+A_i(\lambda)
+$$
 
-A large value of \(\Delta A(\lambda)\) means that wavelength carries useful class-separating information.
+A large value of $\Delta A(\lambda)$ indicates that the wavelength carries useful class-separating information.
 
-In this project, the largest biologically meaningful difference appears around **~2100 nm**, which is associated with proteoglycan sulphate. This supports the idea that the classifier is not only separating two artificial classes, but is doing so using a chemically meaningful spectral region.
+In this project, the strongest meaningful difference appears near **2100 nm**, matching the expected reduction in proteoglycan-related absorption for OA-like cartilage.
 
 ---
 
 ## Classification Mathematics
 
-The task is binary classification:
-
-\[
-f(x_i) \rightarrow y_i
-\]
-
-where the model learns a function \(f\) that maps each preprocessed spectrum to either:
-
-- \(0\): Healthy
-- \(1\): OA
-
-Three different classifiers are used because they represent three different mathematical approaches to classification.
+Three classifiers are compared because they represent different ways of learning the boundary between healthy and OA-like spectra.
 
 ---
 
 ### Random Forest
 
-A Random Forest is an ensemble of decision trees. Each tree splits the spectral feature space into regions based on wavelength values.
+A Random Forest combines many decision trees. Each tree produces a class prediction:
 
-A single decision tree makes a prediction:
+$$
+h_t(\mathbf{x})
+$$
 
-\[
-h_t(x)
-\]
+The final prediction is obtained by majority vote:
 
-The full Random Forest prediction is based on the average or majority vote of many trees:
+$$
+\hat{y}
+=
+\operatorname{mode}
+\left(
+h_1(\mathbf{x}),
+h_2(\mathbf{x}),
+\ldots,
+h_T(\mathbf{x})
+\right)
+$$
 
-\[
-\hat{y} = \text{majority vote}\{h_1(x), h_2(x), ..., h_T(x)\}
-\]
+where $T$ is the number of trees.
 
-where \(T\) is the number of trees.
+Random Forests are useful here because they can model non-linear relationships between wavelength regions and class labels.
 
-Random Forests are useful for spectral data because they can handle:
+Feature importance is estimated from the impurity reduction caused by each wavelength. For classification, impurity is often measured using Gini impurity:
 
-- many wavelength variables
-- non-linear relationships
-- interactions between spectral bands
-- noisy features
+$$
+Gini
+=
+1
+-
+\sum_{c=1}^{C}
+p_c^2
+$$
 
-The wavelength importance is estimated by measuring how much each wavelength reduces impurity across the trees. A wavelength is more important if splits using that wavelength strongly improve class separation.
+where $p_c$ is the proportion of samples from class $c$ at a node.
+
+A wavelength receives high importance if it repeatedly helps split healthy and OA-like spectra across many trees.
 
 ---
 
 ### Support Vector Machine with RBF Kernel
 
-The SVM tries to find a decision boundary that separates healthy and OA spectra with the largest possible margin.
+An SVM tries to find a decision boundary with the largest margin between the two classes.
 
 For a linear SVM, the decision function is:
 
-\[
-f(x) = w^Tx + b
-\]
+$$
+f(\mathbf{x})
+=
+\mathbf{w}^{T}\mathbf{x}
++
+b
+$$
 
-The model predicts one class or the other depending on the sign of \(f(x)\).
+The predicted class depends on the sign of $f(\mathbf{x})$.
 
-However, spectral data is often not linearly separable. The RBF kernel solves this by comparing samples in a non-linear feature space:
+Because spectral data is often not linearly separable, this project uses the radial basis function kernel:
 
-\[
-K(x_i, x_j) = \exp(-\gamma ||x_i - x_j||^2)
-\]
+$$
+K(\mathbf{x}_i, \mathbf{x}_j)
+=
+\exp
+\left(
+-\gamma
+\lVert
+\mathbf{x}_i - \mathbf{x}_j
+\rVert^2
+\right)
+$$
 
 where:
 
-- \(K(x_i, x_j)\) measures similarity between two spectra
-- \(\gamma\) controls how local or broad the similarity function is
-- \(||x_i - x_j||^2\) is the squared distance between spectra
+| Symbol | Meaning |
+|---|---|
+| $K(\mathbf{x}_i, \mathbf{x}_j)$ | Similarity between two spectra |
+| $\gamma$ | Controls the width of the RBF kernel |
+| $\lVert \mathbf{x}_i - \mathbf{x}_j \rVert^2$ | Squared Euclidean distance between spectra |
 
-The RBF kernel is useful when the difference between healthy and OA spectra is subtle and spread across several wavelength regions.
+The RBF kernel allows the SVM to learn non-linear class boundaries from subtle spectral differences.
 
 ---
 
 ### PLS-DA
 
-PLS-DA is widely used in chemometrics because spectra usually have many highly correlated variables. Nearby wavelengths often carry similar information, so ordinary regression or classification methods can struggle.
+Partial Least Squares Discriminant Analysis is a standard chemometric method for spectral classification.
 
-PLS first projects the spectral matrix \(X\) into a smaller set of latent variables:
+Spectral data usually has many highly correlated wavelength variables. PLS handles this by projecting the original spectra into a smaller latent-variable space:
 
-\[
-X = TP^T + E
-\]
+$$
+\mathbf{X}
+=
+\mathbf{T}\mathbf{P}^{T}
++
+\mathbf{E}
+$$
 
 where:
 
-- \(T\) contains the latent scores
-- \(P\) contains the loadings
-- \(E\) is the residual matrix
+| Symbol | Meaning |
+|---|---|
+| $\mathbf{X}$ | Spectral data matrix |
+| $\mathbf{T}$ | Latent score matrix |
+| $\mathbf{P}$ | Loading matrix |
+| $\mathbf{E}$ | Residual matrix |
 
-The response variable is also modelled:
+The target vector is modelled as:
 
-\[
-y = Tq + f
-\]
+$$
+\mathbf{y}
+=
+\mathbf{T}\mathbf{q}
++
+\mathbf{f}
+$$
 
-PLS-DA uses these latent variables for classification. In this project, `PLSRegression` produces a continuous prediction score:
+where $\mathbf{q}$ contains regression weights and $\mathbf{f}$ is the residual error.
 
-\[
+Since scikit-learn provides `PLSRegression` rather than a native PLS-DA classifier, the model first produces a continuous score:
+
+$$
 \hat{y}_{score} \in \mathbb{R}
-\]
+$$
 
-A threshold is then applied:
+The score is converted into a class label using a learned threshold $\tau$:
 
-\[
-\hat{y} =
+$$
+\hat{y}
+=
 \begin{cases}
 1, & \hat{y}_{score} \geq \tau \\
 0, & \hat{y}_{score} < \tau
 \end{cases}
-\]
+$$
 
-where \(\tau\) is the learned threshold.
-
-This is why PLS-DA is implemented as a wrapper around `PLSRegression`. The regression output is converted into a class label.
+This gives a practical PLS-DA implementation using the tools available in scikit-learn.
 
 ---
 
-## Evaluation Metrics
+## Evaluation Mathematics
 
-The models are evaluated with stratified 5-fold cross-validation. This means the dataset is split into five parts while keeping the healthy/OA class balance similar in each fold.
+The models are evaluated using stratified 5-fold cross-validation. The dataset is split into five folds while preserving the healthy/OA class ratio.
 
 For each fold:
 
-1. the model trains on 80% of the data
-2. the model tests on the remaining 20%
-3. the process repeats five times
-4. the final score is averaged across folds
+1. train on four folds
+2. test on the remaining fold
+3. repeat until each fold has been used once for testing
+4. average the final scores
 
-This gives a more reliable estimate than a single train-test split.
+This gives a more stable estimate than a single train-test split.
 
 ---
 
@@ -348,86 +428,94 @@ This gives a more reliable estimate than a single train-test split.
 
 Accuracy measures the proportion of correct predictions:
 
-\[
-Accuracy = \frac{TP + TN}{TP + TN + FP + FN}
-\]
+$$
+Accuracy
+=
+\frac{TP + TN}
+{TP + TN + FP + FN}
+$$
 
 where:
 
-- \(TP\): OA correctly classified as OA
-- \(TN\): healthy correctly classified as healthy
-- \(FP\): healthy incorrectly classified as OA
-- \(FN\): OA incorrectly classified as healthy
+| Term | Meaning |
+|---|---|
+| $TP$ | OA correctly classified as OA |
+| $TN$ | Healthy correctly classified as healthy |
+| $FP$ | Healthy incorrectly classified as OA |
+| $FN$ | OA incorrectly classified as healthy |
 
-Accuracy is easy to understand, but it can be misleading if the dataset is imbalanced. That is why AUC-ROC is also used.
+Accuracy is useful, but it can hide important errors. In medical-style classification, false negatives are especially important because they represent OA-like samples being classified as healthy.
 
 ---
 
 ### Confusion Matrix
 
-The confusion matrix shows the types of correct and incorrect predictions:
+The confusion matrix is:
 
-\[
+$$
 \begin{bmatrix}
 TN & FP \\
 FN & TP
 \end{bmatrix}
-\]
+$$
 
-For a medical screening-style problem, false negatives are especially important. A false negative means an OA-like sample is classified as healthy, which would be more serious than a false positive in many diagnostic contexts.
+It shows not only how many predictions were correct, but also what type of mistakes the model made.
 
 ---
 
 ### ROC Curve and AUC
 
-The ROC curve compares:
+The ROC curve plots the true positive rate against the false positive rate across different thresholds.
 
-\[
-True Positive Rate = \frac{TP}{TP + FN}
-\]
+The true positive rate is:
 
-against:
+$$
+TPR
+=
+\frac{TP}{TP + FN}
+$$
 
-\[
-False Positive Rate = \frac{FP}{FP + TN}
-\]
+The false positive rate is:
 
-at different classification thresholds.
+$$
+FPR
+=
+\frac{FP}{FP + TN}
+$$
 
-The AUC-ROC measures the area under this curve. A perfect classifier has:
+The AUC-ROC measures the area under the ROC curve:
 
-\[
-AUC = 1.0
-\]
+| AUC value | Interpretation |
+|---|---|
+| $1.0$ | Perfect class separation |
+| $0.5$ | Random guessing |
+| $< 0.5$ | Worse than random ranking |
 
-A random classifier has:
-
-\[
-AUC \approx 0.5
-\]
-
-A high AUC means the model ranks OA samples higher than healthy samples consistently, even before choosing a final threshold.
+A high AUC means the model consistently ranks OA-like spectra above healthy spectra, even before choosing a final classification threshold.
 
 ---
 
-## Wavelength Importance
+## Why the Mathematics Matters
 
-For the Random Forest model, each wavelength receives an importance score. Mathematically, this is based on how much a wavelength reduces node impurity across all trees.
+The mathematical pipeline is designed to make the final classification chemically meaningful:
 
-For classification, impurity is often measured using the Gini impurity:
+```text
+Raw absorbance vector
+        ↓
+Noise reduction
+        ↓
+Scatter correction
+        ↓
+Derivative-based feature enhancement
+        ↓
+Classification
+        ↓
+Wavelength importance analysis
 
-\[
-Gini = 1 - \sum_{c=1}^{C} p_c^2
-\]
+'''
 
-where:
 
-- \(C\) is the number of classes
-- \(p_c\) is the proportion of samples belonging to class \(c\) at a node
 
-A useful wavelength produces splits that reduce impurity. If the **~2100 nm** wavelength region repeatedly helps separate healthy from OA spectra, it receives a high importance score.
-
-This is important because spectral machine learning should not be treated as a black box. The model should ideally highlight wavelength regions that make chemical and biological sense. In this project, the strong importance around **~2100 nm** agrees with the expected proteoglycan-related changes in cartilage.
 ## Synthetic Data
 
 Real cartilage NIR spectra are not publicly available. The spectra here are **physically motivated synthetic data** - each absorption peak corresponds to a real molecular vibration band in tissue:

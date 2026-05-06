@@ -4,7 +4,6 @@ I built this repo as a first-principles learning project for temporal modelling.
 
 I am starting with a real public multivariate time-series dataset and use it to learn the modelling logic first.
 
-The point is not to pretend that weather data is tissue data. It isn’t.
 
 The point is to learn the shape of the problem:
 

@@ -2,7 +2,7 @@
 
 I built this repo as a first-principles learning project for temporal modelling.
 
-I did not want to jump straight into a tissue-engineering notebook full of shortcuts, unexplained code, and model names I could not defend. So I start with a real public multivariate time-series dataset and use it to learn the modelling logic first.
+I am starting with a real public multivariate time-series dataset and use it to learn the modelling logic first.
 
 The point is not to pretend that weather data is tissue data. It isn’t.
 

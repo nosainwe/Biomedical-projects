@@ -1,6 +1,6 @@
 # 🧫 Raman Bioprocess Temporal Monitoring
 
-A GitHub-ready machine learning project for **real-time temporal monitoring of a growing biological production process** using Raman spectroscopy and process time-series data.
+Machine learning project for **real-time temporal monitoring of a growing biological production process** using Raman spectroscopy and process time-series data.
 
 I built this project because I wanted something closer to the monitoring idea in the tissue-engineering spectroscopy papers I have been studying, but with a public dataset that actually has repeated measurements over time.
 
@@ -10,7 +10,6 @@ The lab papers motivated the question:
 
 This project answers that in a practical way using the **IndPenSim biopharmaceutical manufacturing dataset**, a large public dataset with online process variables, offline measurements, and simulated Raman spectra from industrial penicillin fermentation batches.
 
-I am not claiming this is cartilage tissue engineering. It is not.  
 I am using a bioprocess dataset because it gives me what the static cartilage datasets do not: **spectral measurements across time**.
 
 ---

@@ -755,27 +755,6 @@ new spectrum arrives
 -> update plot
 ```
 
-That is close to real temporal monitoring.
-
----
-
-## 📌 Thesis-style framing
-
-If this work later becomes part of a thesis, I would frame it as:
-
-```text
-Machine Learning-Based Temporal Monitoring of Tissue-Engineered Construct Maturation Using Spectroscopic Data
-```
-
-A shorter version:
-
-```text
-Temporal Spectroscopic Monitoring of Tissue-Engineered Constructs Using Machine Learning
-```
-
-The first title is stronger because it includes the method, the time component, the tissue-engineering application, and the target process.
-
----
 
 ## 🧾 One-sentence summary
 

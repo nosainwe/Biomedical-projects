@@ -164,14 +164,6 @@ This pipeline shows a path toward:
 
 ---
 
-## 👤 Author
-
-**Nosa Peter Inwe**  
-MSc Intelligent Photonics (Erasmus Mundus)  
-Biometrics & Intelligent Vision  
-
----
-
 ## 📎 Context
 
 Built as part of research work combining:

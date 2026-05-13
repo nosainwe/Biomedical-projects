@@ -349,7 +349,6 @@ This project is useful, but I should not oversell it.
 - The biological translation still needs real longitudinal tissue-engineering spectra.
 - A strong result here proves that I understand the temporal modelling workflow, not that I solved cartilage monitoring.
 
-That honesty matters.
 
 ---
 

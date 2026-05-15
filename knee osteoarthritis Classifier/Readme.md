@@ -14,7 +14,7 @@ DenseNet201 fine-tuned to grade knee osteoarthritis severity from X-ray images u
 
 ## Dataset
 
-[Knee Osteoarthritis Dataset with Severity](https://www.kaggle.com/datasets/shashwatwork/knee-osteoarthritis-dataset-with-severity) - download and place under:
+[Knee Osteoarthritis Dataset with Severity](https://www.kaggle.com/datasets/shashwatwork/knee-osteoarthritis-dataset-with-severity) :
 
 ```
 knee-osteoarthritis-dataset-with-severity/

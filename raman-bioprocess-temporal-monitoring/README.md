@@ -341,8 +341,6 @@ spectral trajectory → temporal model → maturity estimate
 
 ## ⚠️ Honest limitations
 
-This project is useful, but I should not oversell it.
-
 - The dataset is penicillin fermentation, not cartilage.
 - IndPenSim is simulated, although it is designed as a realistic industrial bioprocess benchmark.
 - The target “days-to-threshold” is engineered from penicillin concentration, not measured tissue maturity.

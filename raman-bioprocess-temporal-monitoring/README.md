@@ -365,7 +365,7 @@ If I continue this project, I would add:
 
 ## 📚 References
 
-### Tissue-engineering motivation
+### Tissue-engineering 
 
 - Elkadi, O. A. et al. **Non-destructive assessment of tissue engineered cartilage maturity using visible and near infrared spectroscopy combined with machine learning.** *Biosensors and Bioelectronics* 286, 117587, 2025.
 - Sadeesh, N. et al. **Non-destructive monitoring of cartilage tissue engineering via near-infrared (NIR) spectroscopic assessment of culture medium.** *Biosensors and Bioelectronics* 288, 117809, 2025.

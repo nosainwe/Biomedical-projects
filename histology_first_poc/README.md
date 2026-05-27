@@ -30,7 +30,7 @@ In this notebook, I do four things:
 
 That last part matters.
 
-My point is not only to classify tissue tiles. My point is to show a clean path from image data to embeddings that can later be linked across modalities.
+showing a clean path from image data to embeddings that can later be linked across modalities.
 
 ## Expected dataset structure
 

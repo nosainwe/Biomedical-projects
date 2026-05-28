@@ -173,3 +173,6 @@ Developed for research direction in:
 - Quantitative imaging  
 - k-space reconstruction methods  
 - Accelerated MRI acquisition  
+
+##License
+MIT

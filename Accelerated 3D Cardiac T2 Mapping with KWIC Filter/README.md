@@ -174,5 +174,5 @@ Developed for research direction in:
 - k-space reconstruction methods  
 - Accelerated MRI acquisition  
 
-##License
+## License
 MIT

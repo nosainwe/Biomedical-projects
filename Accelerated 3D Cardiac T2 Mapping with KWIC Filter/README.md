@@ -175,4 +175,4 @@ Developed for research direction in:
 - Accelerated MRI acquisition  
 
 ## License
-MIT
+MIT License

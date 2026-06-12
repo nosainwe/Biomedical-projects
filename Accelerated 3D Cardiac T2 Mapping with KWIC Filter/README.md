@@ -23,10 +23,10 @@ It builds on the SKRATCH framework and demonstrates how to reduce acquisition ti
 - Includes:
   - Healthy myocardium  
   - Blood pool  
-  - Edema region  
+  - Oedema region  
 - Realistic T2 values:
   - Myocardium: ~42 ms  
-  - Edema: ~62 ms  
+  - Oedema: ~62 ms  
   - Blood: ~250 ms  
 
 ---

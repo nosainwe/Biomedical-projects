@@ -160,7 +160,7 @@ def build_model() -> Model:
     x = keras.layers.GlobalAveragePooling2D()(x)
     x = keras.layers.Dropout(0.4)(x)
 
-    # L1+L2 regularization on the final dense layer — this dataset isn't huge, regularize early
+    # L1+L2 regularization on the final dense layer — this dataset isn't huge, regularise early
     predictions = Dense(
         units=5,
         activation="softmax",
@@ -286,7 +286,7 @@ def evaluate_on_test(model: Model, test_batches, batch: int = 32):
     # test set eval — the number we actually report
     model.evaluate(test_batches)
 
-    # predict_generator is deprecated in newer keras but keeping it for compatibility
+    # predict_generator is deprecated in newer Keras, but keeping it for compatibility
     # +1 to the floor division so we don't miss the last partial batch
     Y_pred = model.predict_generator(test_batches, 1656 // batch + 1)
     y_pred = np.argmax(Y_pred, axis=1)

@@ -251,7 +251,7 @@ In this project:
 
 ```text
 one row = one time point in one batch
-many Raman columns = spectral fingerprint at that time point
+Many Raman columns = spectral fingerprint at that time point
 ```
 
 ### 2. A temporal dataset is not just a table
@@ -272,7 +272,7 @@ That is why the notebook groups data by batch and builds sequence windows.
 
 A model cannot learn “recent history” unless I give it history.
 
-So I build windows like:
+So I built windows like:
 
 ```text
 [t-9, t-8, ..., t] → target at t
@@ -322,7 +322,7 @@ NIR/Raman spectra from tissue constructs or culture medium
 and replace:
 
 ```text
-penicillin concentration / batch age
+penicillin concentration/batch age
 ```
 
 with:
@@ -339,7 +339,7 @@ spectral trajectory → temporal model → maturity estimate
 
 ---
 
-## ⚠️ Honest limitations
+## ⚠️ Limitations
 
 - The dataset is penicillin fermentation, not cartilage.
 - IndPenSim is simulated, although it is designed as a realistic industrial bioprocess benchmark.

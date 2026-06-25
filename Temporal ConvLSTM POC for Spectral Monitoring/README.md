@@ -15,7 +15,7 @@ Later, I can replace the weather sensor vector with a spectral vector, biomarker
 
 ---
 
-## 🎯 Why this repo exists
+## Objective
 
 This repo explores temporal monitoring of tissue constructs, not only one-shot endpoint prediction.
 

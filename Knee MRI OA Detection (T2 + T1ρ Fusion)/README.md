@@ -17,7 +17,6 @@ This pipeline shows how **joint analysis + machine learning** can extract earlie
 
 ---
 
-## 🧪 What This Project Does
 
 The pipeline simulates a full clinical workflow:
 

@@ -430,7 +430,7 @@ Mean absolute error:
 MAE = (1/n) sum(abs(y_i - y_hat_i))
 ```
 
-MSE punishes large mistakes more strongly because the error is squared. MAE is easier to read because it stays in the original unit.
+MSE punishes larger mistakes more strongly because the error is squared. MAE is easier to read because it stays in the original unit.
 
 If the target is days, then:
 

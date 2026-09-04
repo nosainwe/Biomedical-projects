@@ -2,7 +2,7 @@
 
 I built this repo as a small, clean proof of concept.
 
-Instead of pretending I already have a public dataset that cleanly joins synchrotron CT, histology, and spatial transcriptomics, I started with one modality that is public, small enough to run locally, and easy to explain in a meeting: histology image tiles.
+Rather than relying on a hypothetical public dataset that cleanly joins synchrotron CT, histology, and spatial transcriptomics, I started with a single modality that is public, small enough to run locally, and easy to explain in a meeting: histology image tiles.
 
 ## Why I chose this dataset
 

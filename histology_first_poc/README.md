@@ -4,7 +4,7 @@ I built this repo as a small, clean proof of concept.
 
 Rather than relying on a hypothetical public dataset that cleanly joins synchrotron CT, histology, and spatial transcriptomics, I started with a single modality that is public, small enough to run locally, and easy to explain in a meeting: histology image tiles.
 
-## Why I chose this dataset
+## Why this dataset
 
 I chose **Colorectal Histology MNIST** from Kaggle.
 

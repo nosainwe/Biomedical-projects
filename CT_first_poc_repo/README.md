@@ -4,7 +4,7 @@
 
 This repository answers one simple question: does a small convolutional neural network beat classical grayscale texture features?
 
-Real medical data is messy. Algorithms fail silently on edge cases. You'll doubt the generalisability of tiny datasets, and rightly so. [Kaggle's CT-Scan Images dataset by Orvile](https://www.kaggle.com/datasets/orvile/ct-scan-images) gives us clear Cancer vs. Non-Cancer separation for quick testing. We need this friction to test pipeline design choices locally. Training cycles finish in minutes. We're running this right here in Joensuu on a standard laptop.
+ [Kaggle's CT-Scan Images dataset by Orvile](https://www.kaggle.com/datasets/orvile/ct-scan-images) gives us clear Cancer vs. Non-Cancer separation for quick testing. We need this friction to test pipeline design choices locally. Training cycles finish in minutes. We're running this right here in Joensuu on a standard laptop.
 
 ---
 

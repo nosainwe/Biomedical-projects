@@ -384,7 +384,6 @@ A high AUC means the model consistently ranks OA-like spectra above healthy spec
 
 ---
 
-## Why the Mathematics Matters
 
 The mathematical pipeline is designed to make the final classification chemically meaningful:
 

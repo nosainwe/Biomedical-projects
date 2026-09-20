@@ -128,7 +128,7 @@ cardiac_t2_3d_poc_results.png
 
 - 3D KWIC reduces RMSE compared to 2D KWIC  
 - k-space sharing across slices improves SNR  
-- Edema regions (>50 ms) clearly detected  
+- Oedema regions (>50 ms) clearly detected  
 - Undersampling alone introduces strong artefacts  
 - KWIC restores image quality without increasing scan time  
 
@@ -150,7 +150,7 @@ This approach shows how to:
 
 ## ⚠️ Limitations
 
-- Simulated phantom (not in-vivo data)  
+- Simulated phantom (not in vivo data)  
 - Simplified noise model  
 - No motion modelling (cardiac/respiratory)  
 
@@ -158,7 +158,7 @@ This approach shows how to:
 
 ## 🔮 Next Steps
 
-- Apply to real cardiac MRI datasets  
+- Apply to some real cardiac MRI datasets  
 - Integrate motion correction  
 - Extend to deep reconstruction models  
 - Combine with T1 mapping (multi-parametric MRI)  

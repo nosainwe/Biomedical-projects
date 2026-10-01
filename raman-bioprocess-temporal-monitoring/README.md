@@ -16,7 +16,7 @@ I am using a bioprocess dataset because it gives me what the static cartilage da
 
 ## 🎯 Project idea
 
-The core idea is simple:
+The core idea:
 
 > Treat each Raman spectrum as a snapshot of the biological process at a moment in time, then train models to estimate where the batch is in its growth/production trajectory.
 

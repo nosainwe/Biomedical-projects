@@ -32,7 +32,7 @@ Each folder typically contains:
 - `assets/` or `outputs/` - optional output figures or saved results
 - `models/` - saved model files when they are small enough or when the project expects local exports
 
-Click any project above to inspect the code and project notes directly.
+Click on any of the projects above to inspect the code and project notes directly.
 
 ---
 

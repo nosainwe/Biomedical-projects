@@ -1,6 +1,6 @@
 # 🧠 Knee MRI OA Detection (T2 + T1ρ Fusion)
 
-**Deep learning-inspired ML pipeline for early osteoarthritis detection using quantitative MRI biomarkers**
+**Deep learning pipeline for early osteoarthritis detection using quantitative MRI biomarkers**
 
 ---
 

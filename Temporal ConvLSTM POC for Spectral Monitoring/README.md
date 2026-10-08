@@ -2,7 +2,7 @@
 
 I built this repo as a first-principles learning project for temporal modelling.
 
-I am starting with a real public multivariate time-series dataset and use it to learn the modelling logic first.
+I am starting with a real public multivariate time-series dataset to learn the modelling logic first.
 
 
 The point is to learn the shape of the problem:
@@ -58,7 +58,7 @@ hyaluronan release
 spectral intensity across wavelengths
 ```
 
-Endpoint testing can destroy the sample or only tell me what happened at one time point. That is not enough if the goal is process control, early warning, or deciding when the construct is ready.
+Endpoint testing can destroy the sample or only tell me what happened at one time point. That isn't enough for process control, early warning, or deciding when the construct is ready.
 
 A temporal model should answer questions like:
 
@@ -165,7 +165,7 @@ For spectroscopy, this vector could be:
 x_t = [I_lambda1, I_lambda2, I_lambda3, ..., I_lambdad]
 ```
 
-where each value is spectral intensity at one wavelength or Raman shift.
+where each value is the spectral intensity at one wavelength or Raman shift.
 
 The modelling goal is:
 
@@ -347,13 +347,13 @@ It also builds a candidate memory:
 c_t_candidate = tanh(W_c [h_(t-1), x_t] + b_c)
 ```
 
-Then it updates memory:
+Then it updates the memory:
 
 ```text
 c_t = f_t * c_(t-1) + i_t * c_t_candidate
 ```
 
-and hidden state:
+and the hidden state:
 
 ```text
 h_t = o_t * tanh(c_t)
@@ -430,7 +430,7 @@ Mean absolute error:
 MAE = (1/n) sum(abs(y_i - y_hat_i))
 ```
 
-MSE punishes larger mistakes more strongly because the error is squared. MAE is easier to read because it stays in the original unit.
+MSE punishes bigger mistakes more strongly because the error is squared. MAE is easier to read because it stays in the original unit.
 
 If the target is days, then:
 

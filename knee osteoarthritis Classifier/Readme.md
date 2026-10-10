@@ -1,6 +1,6 @@
 # Knee Osteoarthritis Severity Classifier
 
-DenseNet201 fine-tuned to grade knee osteoarthritis severity from X-ray images using the Kellgren-Lawrence (KL) scale.
+DenseNet201 is fine-tuned to grade knee osteoarthritis severity from X-ray images using the Kellgren-Lawrence (KL) scale.
 
 ## Classes
 

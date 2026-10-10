@@ -1,6 +1,6 @@
 # Biomedical-projects
 
-Machine learning pipelines for biomedical imaging and spectroscopy, from NIR tissue analysis to histology, CT, MRI, temporal modelling, and bioprocess monitoring. The repo focuses on tissue characterisation, disease detection, longitudinal monitoring, and signal-aware analysis across imaging and spectral data.
+Machine learning pipelines for biomedical imaging and spectroscopy, from NIR tissue analysis to histology, CT, MRI, temporal modelling, and bioprocess monitoring; the list keeps growing, feeding my curiosity one project at a time. The repo focuses on tissue characterisation, disease detection, longitudinal monitoring, and signal-aware analysis across imaging and spectral data.
 
 Each project is self-contained and includes its own setup and run instructions.
 

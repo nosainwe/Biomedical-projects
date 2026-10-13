@@ -1,6 +1,6 @@
 # Histology POC
 
-I built this repo as a small, clean proof of concept.
+I built this repo as a proof of concept.
 
 Rather than relying on a hypothetical public dataset that cleanly joins synchrotron CT, histology, and spatial transcriptomics, I started with a single modality that is public, small enough to run locally, and easy to explain in a meeting: histology image tiles.
 

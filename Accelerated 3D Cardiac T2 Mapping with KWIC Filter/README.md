@@ -60,7 +60,7 @@ S(TE) = exp(-TE / T2)
 #### 2D KWIC
 - Shares periphery across T2prep images  
 
-#### 3D KWIC (Proposed)
+#### 3D KWIC
 - Shares periphery:
   - across T2prep images  
   - across neighbouring slices (kz)

@@ -1,4 +1,4 @@
-# 🌱 Temporal ConvLSTM POC for Spectral Monitoring
+# Temporal ConvLSTM POC for Spectral Monitoring
 
 I built this repo as a first-principles learning project for temporal modelling.
 

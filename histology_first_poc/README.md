@@ -1,4 +1,4 @@
-# Histology POC
+# Histology Proof of concept
 
 I built this repo as a proof of concept.
 
